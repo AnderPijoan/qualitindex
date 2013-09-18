@@ -14,7 +14,7 @@ Input JSON
 
     Search publication cites -> Needs a 'title' and a 'year'
 
-    Search journal impact  -> Needs a journal name and a 'year' when to get the stats
+    Search journal impact  -> Needs a 'journal' name and a 'year' when to get the stats
 
 After extracting these data, the viewer can calculate some extra results.
 

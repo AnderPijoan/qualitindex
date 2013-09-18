@@ -1,0 +1,35 @@
+<html>
+<head>
+<title>Publications STATS viewer</title>
+
+<link rel="stylesheet" href="css/jquery.dataTables.css">
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+<body class="centered width80">
+
+        <a href="http://energia.deusto.es/qualitindex/">
+	<img src="../DeustoTechEnergy.png" class="marginT5" style="width:200px" alt="DeustoTech Energy"/>
+	</a>
+	<h1>Publications STATS viewer</h1>
+
+	<div class="height40">
+	<textarea id="input" class="width100 height100" placeholder="Paste JSON here" autofocus></textarea>
+	</div>
+
+	<div class="">
+	<button class="centered width20 buttonLike" onclick="structureJSON()">Structure</button> 
+	<button class="centered width20 buttonLike" onclick="totalCites()">Total Cites</button>
+	<button class="centered width20 buttonLike" onclick="totalQArticles()">Q Articles</button>
+	<button class="centered width20 buttonLike" onclick="hIndex()">H Index</button>
+	</div>
+
+	<table id="result" class="width100">
+	<table/>
+
+	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script type="text/javascript" src="js/jquery.dataTables.js"></script>
+	<script type="text/javascript" src="js/functions.js"></script>
+
+</body>
+</html>

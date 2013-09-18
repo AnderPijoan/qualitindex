@@ -1,0 +1,123 @@
+<html>
+<head>
+<title>Publications STATS viewer</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+<body class="centered width80">
+
+        <a href="http://energia.deusto.es/qualitindex/">
+	<img src="../DeustoTechEnergy.png" class="marginT5" style="width:200px" alt="DeustoTech Energy"/>
+	</a>
+	<h1>Publications STATS viewer</h1>
+
+	<div>
+		<h2 class="marginT5">Select your BibTeX file for generating the JSON data structure.</h2>
+		<span class="red">Some notation such as \ensuremath{XX^{th}}, extra brackets for upper casing or commas in the last field of an entry might cause problems.</span>
+	</div>
+	
+	<div class="marginT5">
+			<input type="file" id="fileloader" name="file" />
+	</div>
+	
+	<div>
+		<div id="progressbar"><div class="percent border">0%</div></div>
+	</div>
+	
+	<div class="height40">
+		<textarea id="result" class="width100 height100" placeholder="Result will be displayed here"></textarea>
+	</div>
+
+	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script type="text/javascript" src="js/parse-bibtex.js"></script>
+	<script type="text/javascript" src="js/functions.js"></script>
+	<script type="text/javascript">
+
+	var progress = document.querySelector('.percent');
+
+	function errorHandler(evt) {
+	  switch(evt.target.error.code) {
+	    case evt.target.error.NOT_FOUND_ERR:
+	      alert('File not found!');
+	      break;
+	    case evt.target.error.NOT_READABLE_ERR:
+	      alert('File is not readable');
+	      break;
+	    case evt.target.error.ABORT_ERR:
+	      break; // noop
+	    default:
+	      alert('An error occurred reading this file.');
+	  };
+	}
+
+	function updateProgress(evt) {
+	  // evt is an ProgressEvent.
+	  if (evt.lengthComputable) {
+	    var percentLoaded = Math.round((evt.loaded / evt.total) * 100);
+	    // Increase the progress bar length.
+	    if (percentLoaded < 100) {
+	      progress.style.width = percentLoaded + '%';
+	      progress.textContent = percentLoaded + '%';
+	    }
+	  }
+	}
+
+	$( '#fileloader' ).change(function(evt) {
+	  
+	  // Reset progress indicator on new file selection.
+	  progress.style.width = '0%';
+	  progress.textContent = '0%';
+	  
+	  var reader = new FileReader();
+	  reader.onerror = errorHandler;
+	  reader.onprogress = updateProgress;
+	  reader.onabort = function(e) {
+	    alert('File read cancelled');
+	  };
+	  reader.onloadstart = function(e) {
+	    document.getElementById('progressbar').className = 'loading';
+	  };
+	  reader.onload = function(e) {
+	    // Ensure that the progress bar displays 100% at the end.
+	    progress.style.width = '100%';
+	    progress.textContent = '100%';
+	    setTimeout("document.getElementById('progressbar').className='';", 2000);
+	    
+	    bib2json(e.target.result, function(error, result){
+	    
+		$('#result').empty();
+		$('#result').removeClass("green");
+		$('#result').removeClass("red");
+		
+		if (error){
+			alert('Error : ' + error + '\n\nPlease, go to a JSON validator such as JSONLINT.COM and paste the data that will be shown in the text area to help finding where the conversion went wrong.');
+			$('#result').addClass("red");
+			$('#result').append( result );
+		} else {
+			$('#result').addClass("green");
+			$('#result').append( JSON.stringify(result) );
+		}
+	    });
+	  }
+	  
+	  // Read in the file as a binary string.
+	  reader.readAsBinaryString(evt.target.files[0]);
+	});
+
+	$("#result").focus(function() {
+	    var $this = $(this);
+	    $this.select();
+
+	    // Work around Chrome's little problem
+	    $this.mouseup(function() {
+		// Prevent further mouseup intervention
+		$this.unbind("mouseup");
+		return false;
+	    });
+	});
+	
+	</script>
+
+</body>
+</html>
