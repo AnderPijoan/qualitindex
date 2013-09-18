@@ -12,10 +12,10 @@ The script uses a JSON data array as a input where to get the values needed for 
 Input JSON
 ==========
 
-|--------------------------|---------------------------------------------------------|
-| Search publication cites | Needs a 'title' and a 'year'                            |
-|   Search journal impact  | Needs a journal name and a 'year' when to get the stats |
-|--------------------------|---------------------------------------------------------|
+|--------------------------|---------------------------------------------------------|\n
+| Search publication cites | Needs a 'title' and a 'year'                            |\n
+|   Search journal impact  | Needs a journal name and a 'year' when to get the stats |\n
+|--------------------------|---------------------------------------------------------|\n
 
 After extracting these data, the viewer can show some more results.
 
