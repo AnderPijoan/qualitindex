@@ -4,7 +4,7 @@ Publication and Journal statistics web scraper script and viewer
 This repository contains an iMacros™ ( http://wiki.imacros.net/ ) script for extracting 
 some publication and journal statistics from several pages by web scraping.
 
-USING WEB SCRAPING TECHNIQUES MAY BE AGAINST SOME OF THE TERM OF USE OF THESE WEBSITE.
+USING WEB SCRAPING TECHNIQUES MAY BE AGAINST SOME OF THE TERMS OF USE OF THESE WEBSITE.
 
 The script uses a JSON data array as a input where to get the values needed for searching the sites.
 
