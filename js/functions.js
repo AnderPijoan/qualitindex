@@ -33,7 +33,71 @@ function structureJSON(){
  * *********************************************** FUNCTION TO COUNT CITES ************************************************
  */
 function totalQArticles(){
-  alert('Not done yet');
+
+  // Convert text into JSON
+  data = JSON.parse($('#input').val());
+  var qArticles = {};
+  
+   for (var d = 0; d < data.length; d++){
+     
+     if (data[d].sjrCategories){
+       
+       for(var c = 0; c < data[d].sjrCategories.length; c++){
+	 
+	 if (data[d].sjrCategories[c].q){
+	   
+	   var category = data[d].sjrCategories[c].q.toUpperCase();
+	   
+	   if(!qArticles[category]){
+	     qArticles[category] = 0;
+	   }
+	   qArticles[category]++;
+	 }
+       }
+     }
+     
+     if (data[d].jcrCategories){
+       
+       for(var c = 0; c < data[d].jcrCategories.length; c++){
+	 
+	 if (data[d].jcrCategories[c].q){
+	   
+	   var category = data[d].jcrCategories[c].q.toUpperCase();
+	   
+	   if(!qArticles[category]){
+	     qArticles[category] = 0;
+	   }
+	   qArticles[category]++;
+	 }
+       }
+     }
+   }
+  
+  var aoColumns = [];
+  var aaData = [];
+  var row = [];
+  var tot = 0;
+  
+  for(q in qArticles){
+    aoColumns.push({"sTitle": q});
+    row.push(qArticles[q]);
+    tot += qArticles[q];
+  }
+  aoColumns.push({"sTitle": "Total"});
+  row.push(tot);
+  aaData.push(row);
+  
+  $('#result_wrapper').remove();
+  $('body').append('<table id="result" class="width100"><table/>');
+  
+  // Create table
+  $('#result').dataTable({
+    "aaData" : aaData,
+    "aoColumns" : aoColumns,
+    "bLengthChange": true,
+    "bDestroy": true
+  });
+  
 }
 
 /*
@@ -43,11 +107,11 @@ function totalCites(){
   
   // Convert text into JSON
   data = JSON.parse($('#input').val());
-  googleCites = 0;
-  scopusCites = 0;
-  wokCites = 0;
+  var googleCites = 0;
+  var scopusCites = 0;
+  var wokCites = 0;
   
-  for (d = 0; d < data.length; d++){
+  for (var d = 0; d < data.length; d++){
     
     if (data[d].citesGoogle)
       googleCites += data[d].citesGoogle;
@@ -59,9 +123,9 @@ function totalCites(){
       wokCites += data[d].citesWok;
   }
   
-  aaData = [[googleCites + "" , scopusCites + "" , wokCites + "" , googleCites + scopusCites + wokCites + ""]];
+  var aaData = [[googleCites + "" , scopusCites + "" , wokCites + "" , googleCites + scopusCites + wokCites + ""]];
   
-  aoColumns = [{"sTitle": "Cites Google"},{"sTitle": "Cites Scopus"},{"sTitle": "Cites Wok"},{"sTitle": "Total Cites"}];
+  var aoColumns = [{"sTitle": "Cites Google"},{"sTitle": "Cites Scopus"},{"sTitle": "Cites Wok"},{"sTitle": "Total Cites"}];
   
   $('#result_wrapper').remove();
   $('body').append('<table id="result" class="width100"><table/>');
@@ -84,11 +148,11 @@ function hIndex(){
   // Convert text into JSON
   data = JSON.parse($('#input').val());
   
-  google = {"foundArt" : 0, "citedArt" : 0, "foundArtCites" : Number.MAX_VALUE, "citedArtCites" : Number.MAX_VALUE};
-  scopus = {"foundArt" : 0, "citedArt" : 0, "foundArtCites" : Number.MAX_VALUE, "citedArtCites" : Number.MAX_VALUE};
-  wok = {"foundArt" : 0, "citedArt" : 0, "foundArtCites" : Number.MAX_VALUE, "citedArtCites" : Number.MAX_VALUE};
+  var google = {"foundArt" : 0, "citedArt" : 0, "foundArtCites" : Number.MAX_VALUE, "citedArtCites" : Number.MAX_VALUE};
+  var scopus = {"foundArt" : 0, "citedArt" : 0, "foundArtCites" : Number.MAX_VALUE, "citedArtCites" : Number.MAX_VALUE};
+  var wok = {"foundArt" : 0, "citedArt" : 0, "foundArtCites" : Number.MAX_VALUE, "citedArtCites" : Number.MAX_VALUE};
   
-  for (d = 0; d < data.length; d++){
+  for (var d = 0; d < data.length; d++){
     
     if (data[d].title){
       
@@ -122,13 +186,13 @@ function hIndex(){
     
   }
   
-  aaData = [
+  var aaData = [
   ["Google", Math.min(google.foundArt , google.foundArtCites) + "" ,  Math.min(google.citedArt , google.citedArtCites) + ""],
   ["Scopus", Math.min(scopus.foundArt , scopus.foundArtCites) + "" ,  Math.min(scopus.citedArt , scopus.citedArtCites) + ""],
   ["Wok", Math.min(wok.foundArt , wok.foundArtCites) + "" ,  Math.min(wok.citedArt , wok.citedArtCites) + ""]
   ];
   
-  aoColumns = [{"sTitle": "Source"},{"sTitle": "H Index including 0 cites articles"},{"sTitle": "H Index excluding 0 cites articles"}];
+  var aoColumns = [{"sTitle": "Source"},{"sTitle": "H Index including 0 cites articles"},{"sTitle": "H Index excluding 0 cites articles"}];
   
   $('#result_wrapper').remove();
   $('body').append('<table id="result" class="width100"><table/>');
@@ -198,10 +262,10 @@ function hIndex(){
    */
   function tableToHtml(aaData, aoColumns){
     
-    html = '<table>';
+    var html = '<table>';
     
-    th = '<thead><tr>';
-    tb = '<tbody>';
+    var th = '<thead><tr>';
+    var tb = '<tbody>';
     
     // Header
     // Get columns names
@@ -211,10 +275,10 @@ function hIndex(){
     
     // Body
     // Get each row
-    for (r = 0; r < aaData.length; r++){
+    for (var r = 0; r < aaData.length; r++){
       tb += '<tr>';
       // Each value
-      for(v = 0; v < aaData[r].length; v++){
+      for(var v = 0; v < aaData[r].length; v++){
 	
 	if ( typeof(aaData[r][v]) == 'string' ){
 	  tb += '<td>' + aaData[r][v].toUpperCase() + '</td>';
@@ -269,7 +333,7 @@ function hIndex(){
       callback(e, bibjson);
     }
     
-    for(i = 0; i < bibobj.length; i++){
+    for(var i = 0; i < bibobj.length; i++){
       
       if( bibobj[i].booktitle && !bibobj[i].journal ){
 	bibobj[i].journal = bibobj[i].booktitle;
@@ -297,11 +361,11 @@ function hIndex(){
 	// Read first line to get the header names
 	var names = lines[0].split(delimiter);
 	
-	for (l = 1; l < lines.length; l++){
+	for (var l = 1; l < lines.length; l++){
 	  var fields = lines[l].split(delimiter);
 	  var csvjson = '{';
 	  
-	  for (f = 0; f < fields.length; f++){
+	  for (var f = 0; f < fields.length; f++){
 	    csvjson += '"' + names[f].toLowerCase() + '":"' + fields[f] + '",';
 	  }
 	  
@@ -309,7 +373,7 @@ function hIndex(){
 	  csvobj.push(JSON.parse(csvjson));
 	}
 	
-	for(i = 0; i < csvobj.length; i++){
+	for(var i = 0; i < csvobj.length; i++){
 	  
 	  if( csvobj[i].booktitle && !csvobj[i].journal ){
 	    csvobj[i].journal = csvobj[i].booktitle;
