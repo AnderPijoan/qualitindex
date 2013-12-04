@@ -7,23 +7,23 @@ var data = JSON.parse(prompt('Paste the JSON data generated with bib2json script
 
 if (data) {
   
-  /* Go throug all the lines */
+  // Go throug all the lines
   
   for (count = 0; count < data.length; count++){
     
-    /* If title exists, fill all the cites fields */
+    // If title exists, fill all the cites fields
     
     if( data[count].title && data[count].title != '' ){
       
-      /* Get cites from GOOGLE SCHOLAR */
+      // Get cites from GOOGLE SCHOLAR
       var google = getGoogleScholarCites( data[count].title, data[count].year );
       data[count].citesGoogle = google < 0? undefined : google;
       
-      /* Get cites from SCOPUS */
+      // Get cites from SCOPUS
       var scopus = getScopusCites( data[count].title, data[count].year );
       data[count].citesScopus = scopus < 0? undefined : scopus;
       
-      /* Get cites from WOK */
+      // Get cites from WOK
       var wok = getWokCites( data[count].title, data[count].year );
       data[count].citesWok = wok < 0? undefined : wok;
       
@@ -31,13 +31,11 @@ if (data) {
     
     if (data[count].journal && data[count].journal != '' ){
       
-      /* Get H5 from GOOGLE SCHOLAR */
-      
+      // Get H5 from GOOGLE SCHOLAR
       var h5 = getGoogleH5( data[count].journal, data[count].year );
       data[count].h5 = h5 < 0? undefined : h5;
       
-      /* Get JCR from WOK */
-      
+      // Get JCR from WOK
       getWokJCR( count, data[count].journal, data[count].year, function(c, jcr, jcrYear, jcrCategories){
 	
 	// If no jcr found, try up to 2 years less
@@ -74,16 +72,20 @@ if (data) {
 	}
       });
       
-      /* GET SCR from SCIMAGO */
-      
+      // GET SCR from SCIMAGO
       getSjrFromScimago( count, data[count].journal, data[count].year, function(c, sjr, sjrYear, sjrCategories){
-	
+
 	if (sjr > 0){
 	  data[c].sjr = sjr;
 	  data[c].sjrYear = sjrYear;
 	  data[c].sjrCategories = sjrCategories;
 	}
-      });    
+      });
+
+      // GET CORE RANKING
+      var core = getCore(data[count].journal);
+      data[count].core = (core == undefined? undefined : core);
+      
     }
     
   }
@@ -178,11 +180,11 @@ function getWokCites(title, year){
     'TAG POS=1 TYPE=INPUT:RADIO FORM=ID:UA_GeneralSearch_input_form ATTR=ID:periodRange\n' +
     'TAG POS=1 TYPE=SELECT FORM=NAME:UA_GeneralSearch_input_form ATTR=NAME:startYear CONTENT=%' + year + '\n' +
     'TAG POS=1 TYPE=SELECT FORM=NAME:UA_GeneralSearch_input_form ATTR=NAME:endYear CONTENT=%' + year + '\n' + 
-    'TAG POS=1 TYPE=INPUT:IMAGE FORM=ID:UA_GeneralSearch_input_form ATTR=SRC:http://images.webofknowledge.com/WOKRS511B5P1.01/images/search.gif');
+    'TAG POS=1 TYPE=INPUT:IMAGE FORM=ID:UA_GeneralSearch_input_form ATTR=SRC:http://images.webofknowledge.com/WOKRS512B4.1/images/search.gif');
   } else {
     iimPlay('CODE: TAG POS=1 TYPE=SELECT FORM=NAME:UA_GeneralSearch_input_form ATTR=ID:select1 CONTENT=%TI\n' +
     'TAG POS=1 TYPE=INPUT:TEXT FORM=NAME:UA_GeneralSearch_input_form ATTR=ID:value(input1) CONTENT=' + title.replace(/ /g, '<SP>') + '\n' +
-    'TAG POS=1 TYPE=INPUT:IMAGE FORM=ID:UA_GeneralSearch_input_form ATTR=SRC:http://images.webofknowledge.com/WOKRS511B5P1.01/images/search.gif');
+    'TAG POS=1 TYPE=INPUT:IMAGE FORM=ID:UA_GeneralSearch_input_form ATTR=SRC:http://images.webofknowledge.com/WOKRS512B4.1/images/search.gif');
   }
   
   //Position at "Times Cited" span to know if it has been found and save value in EXTRACT
@@ -377,7 +379,7 @@ function getSjrFromScimago(count, journalName, sjryear, callback){
 /**
  * GET RANKING OF JOURNAL PER SCIMAGO-SJR CATEGORY
  */
-function getRankingPerCategory(cat, journal){
+function getRankingPerCategory(cat, journalName){
   
   var sjrcat = {}
   sjrcat.category = cat;
@@ -396,7 +398,6 @@ function getRankingPerCategory(cat, journal){
     if(extraction[0] == "#EANF#")	
       end_of_pagination = true;
     
-    
     var table = extraction[1];
     var i = 1;
     var ranking = "-";
@@ -405,12 +406,12 @@ function getRankingPerCategory(cat, journal){
     table = table.trim().replace(/"/gi, '').split("\n");
     
     // Searches each row of the table for an entry that matches the name of the journal
-    while(!found && i<table.length){			
+    while(!found && i<table.length){
       row = table[i].split(",");
       // Name of the journal is at position 1: row[1]
-      if ((row.length > 1) && (row[1].trim().toLowerCase() == journal.toLowerCase())){				
+      if ((row.length > 1) && (row[1].trim().toLowerCase() == journalName.toLowerCase())){
 	// Get sjr index. Due to the previous split command -split(",")-, the integer and decimal parts of the index are separated
-	sjr = row[3] + "." + row[4];
+	sjr = row[2] + "." + row[3];
 	// Get ranking of the journal
 	ranking = row[0];
 	found = true;
@@ -427,7 +428,7 @@ function getRankingPerCategory(cat, journal){
   }
   
   // Get total number of journals
-  iimPlay('CODE: TAG POS=6 TYPE=P ATTR=* EXTRACT=TXT'); 
+  iimPlay('CODE: TAG POS=7 TYPE=P ATTR=* EXTRACT=TXT'); 
   var extract_pages = iimGetLastExtract().trim().split(" ");
   var total_journals;
   
@@ -456,7 +457,58 @@ function calculate_quartile(position, total_journals){
   return i;
 }
 
+/**
+ * GET RANKING FROM MICROSOFT ACADEMIC
+ */
+function getMicrosoftRankigForJournals(journalName){
 
+  // Go to url
+  ﻿iimPlay('CODE: URL GOTO=http://academic.research.microsoft.com/RankList?entitytype=4&topDomainID=2&subDomainID=0&last=0&start=1&end=100');
+
+  // Go to table
+  iimPlay('CODE: TAG POS=1 TYPE=TABLE ATTR=CLASS:staticTable\n' +
+  'TAG POS=1 TYPE=TBODY EXTRACT=HTM');
+  extraction = iimGetLastExtract().trim();
+}
+function getMicrosoftRankigForConferences(conferenceName){
+
+  // Go to url
+  ﻿iimPlay('CODE: URL GOTO=http://academic.research.microsoft.com/RankList?entitytype=3&topDomainID=2&subDomainID=0&last=0&start=1&end=100');
+
+}
+
+/**
+ * GET RANKING FROM CORE
+ */
+
+function getCore(journalName){
+
+  // Go to url
+  iimPlay('CODE: URL GOTO=http://103.1.187.206/core');
+  
+  // Fill form
+  iimPlay('CODE: TAG POS=1 TYPE=INPUT:TEXT FORM=ID:searchform ATTR=NAME:search CONTENT=' + journalName.replace(/ /g, '<SP>'));
+  
+  // Click search
+  iimPlay('CODE: TAG POS=1 TYPE=INPUT:SUBMIT FORM=ID:searchform ATTR=*');
+  
+  // Position on row
+  iimPlay('CODE: TAG POS=1 TYPE=TABLE ATTR=* EXTRACT=TXT\n' +
+  'TAG POS=1 TYPE=TBODY ATTR=* EXTRACT=TXT\n' +
+  'TAG POS=2 TYPE=TR ATTR=* EXTRACT=TXT\n' +
+  'SET !EXTRACT NULL\n' +
+  'TAG POS=4 TYPE=TD ATTR=* EXTRACT=TXT\n');
+  category = iimGetLastExtract();
+  
+  if (category == '#EANF#')
+    return undefined;
+ 
+  category = category.trim();
+  if(category.length() > 1);
+    return undefined;
+  
+  return category;
+}
 
 /**
  * SHOW RESULTS

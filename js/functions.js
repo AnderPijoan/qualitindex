@@ -217,8 +217,8 @@ function hIndex(){
     var keys = [];
     var data = da;
     
-    for (e = 0; e < da.length; e++){
-      for(key in da[e]){
+    for (var e in da){
+      for(var key in da[e]){
 	
 	if (keys.indexOf(key) < 0){
 	  aoC.push({"sTitle": key});
@@ -230,12 +230,12 @@ function hIndex(){
     // Get all the elements data
     var aaD = [];
     
-    for (var e = 0; e < data.length; e++){
+    for (var e in data){
       
       var row = [];
       
       // Get the properties in the same order as the first element
-      for(var k = 0; k < keys.length; k++){
+      for(var k in keys){
 	
 	// If it is an object
 	if( typeof(data[e][keys[k]]) == 'object' ){
@@ -365,7 +365,7 @@ function hIndex(){
 	  var fields = lines[l].split(delimiter);
 	  var csvjson = '{';
 	  
-	  for (var f = 0; f < fields.length; f++){
+	  for (var f in names){
 	    csvjson += '"' + names[f].toLowerCase() + '":"' + fields[f] + '",';
 	  }
 	  
