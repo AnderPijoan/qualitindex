@@ -504,7 +504,7 @@ function getCore(journalName){
     return undefined;
  
   category = category.trim();
-  if(category.length() > 1);
+  if(category.length > 1);
     return undefined;
   
   return category;
